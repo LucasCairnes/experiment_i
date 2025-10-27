@@ -1,0 +1,43 @@
+Experiment I Offset Calibrations
+These are added to the MUP6050_raw code
+
+Exp I1 (Black casing):
+
+accelgyro.setXAccelOffset(-620);
+accelgyro.setYAccelOffset(1548);
+accelgyro.setZAccelOffset(1500);
+
+accelgyro.setXGyroOffset(86);
+accelgyro.setYGyroOffset(-38);
+accelgyro.setZGyroOffset(-45);
+
+
+Exp I2 (Red casing):
+
+accelgyro.setXAccelOffset(-1973);
+accelgyro.setYAccelOffset(-2599);
+accelgyro.setZAccelOffset(485);
+    
+accelgyro.setXGyroOffset(-411);
+accelgyro.setYGyroOffset(51);
+accelgyro.setZGyroOffset(-38);
+
+Exp I3 (Clear casing):
+
+accelgyro.setXAccelOffset(-1801);
+accelgyro.setYAccelOffset(1763);
+accelgyro.setZAccelOffset(1427);
+    
+accelgyro.setXGyroOffset(65);
+accelgyro.setYGyroOffset(16);
+accelgyro.setZGyroOffset(24);
+
+Exp I4 (White casing):
+
+accelgyro.setXAccelOffset(1477);
+accelgyro.setYAccelOffset(839);
+accelgyro.setZAccelOffset(1065);
+    
+accelgyro.setXGyroOffset(83);
+accelgyro.setYGyroOffset(-20);
+accelgyro.setZGyroOffset(-49);

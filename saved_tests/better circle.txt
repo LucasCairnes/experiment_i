@@ -1,0 +1,75 @@
+better circle
+
+import pandas as pd
+from GOOD_funcs import remove_offsets, apply_low_pass, apply_filter, integrate_acceleration, plot_fft, plot_cols, process_orientation, remove_gravity, rotate_acceleration, apply_high_pass, integrate_velocity
+
+excel_data = pd.read_excel("GY-521_tests/good tests/360 circle ab z NO ROTATION.xlsx")
+raw_cols = ['ax', 'ay', 'az']
+gyro_cols = ["gx", "gy", "gz"]
+
+low_passes = [3, 5, 5, 10, 10, 10]
+high_passes = [0.01, 0.02, 0.02]
+
+STATIONARY_START = 1.6
+STATIONARY_END = 11.8
+
+cleaned_data = remove_offsets(
+    excel_data,
+    stationary_start=STATIONARY_START
+)
+
+low_passed = apply_low_pass(
+    cleaned_data,
+    low_passes=low_passes,
+    filter_order=2
+)
+
+filtered = low_passed.copy()
+
+for gyro in gyro_cols:
+    filtered = apply_filter(
+        filtered,
+        filter_col=gyro,
+        high_pass=0.2,
+        low_pass=6
+    )
+
+oriented = process_orientation(
+    filtered,
+    stationary_start=STATIONARY_START,
+    stationary_end=STATIONARY_END
+)
+
+gravity_removed = remove_gravity(
+    oriented
+)
+
+rotated = rotate_acceleration(
+    gravity_removed
+)
+
+high_passed = apply_high_pass(
+    rotated,
+    filter_order=2,
+    passes=high_passes
+)
+
+integrated_accel = integrate_acceleration(
+    high_passed,
+    stationary_start=STATIONARY_START,
+    stationary_end=STATIONARY_END
+)
+
+integrated_df = integrate_velocity(
+    integrated_accel,
+    stationary_start=STATIONARY_START,
+    stationary_end=STATIONARY_END
+)
+
+integrated_df["d_x (m)"] *= 1.6
+integrated_df["d_x (m)"] += 0.05
+
+custom_mask = (integrated_df["t (s)"] < 10.6)
+
+
+plot_cols(integrated_df[custom_mask], x_axis="d_x", y_axis="d_y")

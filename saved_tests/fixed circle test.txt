@@ -1,0 +1,30 @@
+import pandas as pd
+
+from exp_I_funcs import clean_data2, apply_filter, integrate_data, plot_fft, plot_cols
+
+excel_data = pd.read_excel("GY-521_tests/good tests/360 circle ab z NO ROTATION.xlsx")
+raw_cols = ['ax', 'ay', 'az', 'gx', 'gy', 'gz']
+
+to_clean = excel_data
+
+calculated_offsets = [-0.15118, 0.0578, -0.171, 0.340, 0.0816, 0.038]
+
+for col in raw_cols:
+    to_clean = apply_filter(    
+        to_clean,
+        filter_col=col,
+        filter_order=2,
+        low_pass=5,
+        high_pass=0.01
+    )
+
+cleaned_data = clean_data2(
+    to_clean,
+    g_col='az',
+    stationary_time=1.7,
+    offsets=calculated_offsets
+)
+
+integrated_data = integrate_data(cleaned_data)
+
+plots = plot_cols(integrated_data, x_axis='d_x', y_axis='d_y')
