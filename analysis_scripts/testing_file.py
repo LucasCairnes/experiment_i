@@ -1,5 +1,5 @@
 import pandas as pd
-from GOOD_funcs import remove_offsets, apply_low_pass, filter_gyroscopes, integrate_acceleration, plot_fft, plot_cols, process_orientation, remove_gravity, rotate_acceleration, apply_high_pass, integrate_velocity
+from main_functions import remove_offsets, apply_low_pass, filter_gyroscopes, integrate_acceleration, plot_fft, plot_cols, process_orientation, remove_gravity, rotate_acceleration, apply_high_pass, integrate_velocity
 
 excel_data = pd.read_excel("GY-521_tests/Slow Square 2.xlsx")
 raw_cols = ['ax', 'ay', 'az']
