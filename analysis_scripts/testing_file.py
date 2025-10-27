@@ -1,19 +1,21 @@
 import pandas as pd
 from main_functions import remove_offsets, apply_low_pass, filter_gyroscopes, integrate_acceleration, plot_fft, plot_cols, process_orientation, remove_gravity, rotate_acceleration, apply_high_pass, integrate_velocity
 
-excel_data = pd.read_excel("raw_data/shapes/12_10_circle_rot_ab_z.xlsx")
+excel_data = pd.read_excel("raw_data/shapes/21_10_medium_square.xlsx")
 
 raw_cols = ['ax', 'ay', 'az']
 gyro_cols = ["gx", "gy", "gz"]
 
-low_passes = [3, 3, 2]
+low_passes = [30, 30, 2]
 high_passes = [0.02, 0.02, 1]
 
 gyro_high = [1, 1, 0.00001]
 gyro_low = [2, 2, 2] 
 
-STATIONARY_START = 2.1
-STATIONARY_END = 14.13
+plot_fft(excel_data, selected_axis="ay")
+
+STATIONARY_START = 13.5
+STATIONARY_END = 19.3
 
 cleaned_data = remove_offsets(
     excel_data,
@@ -47,14 +49,14 @@ rotated = rotate_acceleration(
     gravity_removed
 )
 
-# high_passed = apply_high_pass(
-#     rotated,
-#     filter_order=2,
-#     passes=high_passes
-# )
+high_passed = apply_high_pass(
+    rotated,
+    filter_order=2,
+    passes=high_passes
+)
 
 integrated_accel = integrate_acceleration(
-    rotated,
+    high_passed,
     stationary_start=STATIONARY_START,
     stationary_end=STATIONARY_END
 )
@@ -67,4 +69,4 @@ integrated_df = integrate_velocity(
 
 moving_mask = (integrated_df["t (s)"] > STATIONARY_START) & (integrated_df["t (s)"] < STATIONARY_END)
 
-plot_cols(integrated_df[moving_mask], x_axis= "d_x", y_axis="d_y")
+plot_cols(integrated_df[moving_mask], x_axis= "t", y_axis="d_x")

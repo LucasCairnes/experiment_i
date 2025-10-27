@@ -326,16 +326,25 @@ def plot_cols(data_df, y_axis, x_axis="t"):
     plt.grid(True)
     plt.show()
 
-def apply_savgol(data_df, filter_col):
+def apply_savgol(data_df, filter_col_name, window, order):
     
-    column = col_dict[filter_col]
-    to_filter = data_df[column]
+    df_out = data_df.copy()
     
-    window = 75
-    order = 7
+    if filter_col_name in col_dict:
+        column = col_dict[filter_col_name]
+    elif filter_col_name in data_df.columns:
+        column = filter_col_name
 
-    filtered_data = savgol_filter(to_filter, window_length = int(window), polyorder = int(order), mode = 'interp')
+    to_filter = df_out[column]
+    
+    if window % 2 == 0:
+        window += 1
+        
+    filtered_data = savgol_filter(to_filter, 
+                                window_length = int(window), 
+                                polyorder = int(order), 
+                                mode = 'interp')
 
-    data_df[column] = filtered_data  
-
-    return data_df
+    df_out[column] = filtered_data  
+    
+    return df_out
