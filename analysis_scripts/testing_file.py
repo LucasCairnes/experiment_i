@@ -1,18 +1,19 @@
 import pandas as pd
 from main_functions import remove_offsets, apply_low_pass, filter_gyroscopes, integrate_acceleration, plot_fft, plot_cols, process_orientation, remove_gravity, rotate_acceleration, apply_high_pass, integrate_velocity
 
-excel_data = pd.read_excel("GY-521_tests/Slow Square 2.xlsx")
+excel_data = pd.read_excel("raw_data/shapes/12_10_circle_rot_ab_z.xlsx")
+
 raw_cols = ['ax', 'ay', 'az']
 gyro_cols = ["gx", "gy", "gz"]
 
-low_passes = [25, 25, 2]
-high_passes = [0.05, 0.06, 1]
+low_passes = [3, 3, 2]
+high_passes = [0.02, 0.02, 1]
 
-gyro_high = [1, 1, 1]
-gyro_low = [5, 5, 5] 
+gyro_high = [1, 1, 0.00001]
+gyro_low = [2, 2, 2] 
 
-STATIONARY_START = 5.38
-STATIONARY_END = 14.26
+STATIONARY_START = 2.1
+STATIONARY_END = 14.13
 
 cleaned_data = remove_offsets(
     excel_data,
@@ -28,7 +29,8 @@ low_passed = apply_low_pass(
 filtered_gyro = filter_gyroscopes(
     low_passed,
     low_passes=gyro_low,
-    high_passes=gyro_high
+    high_passes=gyro_high,
+    filter_order=1
 )
 
 oriented = process_orientation(
@@ -45,14 +47,14 @@ rotated = rotate_acceleration(
     gravity_removed
 )
 
-high_passed = apply_high_pass(
-    rotated,
-    filter_order=2,
-    passes=high_passes
-)
+# high_passed = apply_high_pass(
+#     rotated,
+#     filter_order=2,
+#     passes=high_passes
+# )
 
 integrated_accel = integrate_acceleration(
-    high_passed,
+    rotated,
     stationary_start=STATIONARY_START,
     stationary_end=STATIONARY_END
 )
@@ -63,6 +65,6 @@ integrated_df = integrate_velocity(
     stationary_end=STATIONARY_END
 )
 
-stationary_mask = (integrated_df["t (s)"] > 5.38) & (integrated_df["t (s)"] < 14.26)
+moving_mask = (integrated_df["t (s)"] > STATIONARY_START) & (integrated_df["t (s)"] < STATIONARY_END)
 
-plot_cols(integrated_df, x_axis="d_x", y_axis="d_y")
+plot_cols(integrated_df[moving_mask], x_axis= "d_x", y_axis="d_y")

@@ -64,28 +64,35 @@ def process_orientation(data_df, stationary_start, stationary_end):
     df_out = data_df.copy()
 
     time = df_out['t (s)'].values
+    n_points = len(time)
     
-    stationary_mask = (time > stationary_start) & (time < stationary_end)
+    stationary_mask = (time < stationary_start) | (time > stationary_end)
+    moving_mask = ~stationary_mask
     
     gx_rad = np.radians(df_out['gx (deg/s)'].values)
     gy_rad = np.radians(df_out['gy (deg/s)'].values)
     gz_rad = np.radians(df_out['gz (deg/s)'].values)
+
+    # gz_rad[stationary_mask] = 0.0
+
+    roll_raw = scipy.integrate.cumulative_trapezoid(gx_rad, time, initial=0)
+    pitch_raw = scipy.integrate.cumulative_trapezoid(gy_rad, time, initial=0)
+    yaw_raw = scipy.integrate.cumulative_trapezoid(gz_rad, time, initial=0)
+
+    roll_processed = np.zeros(n_points)
+    pitch_processed = np.zeros(n_points)
     
-    roll = scipy.integrate.cumulative_trapezoid(gx_rad, time, initial=0)
-    pitch = scipy.integrate.cumulative_trapezoid(gy_rad, time, initial=0)
-    yaw = scipy.integrate.cumulative_trapezoid(gz_rad, time, initial=0)
-            
-    roll = detrend(roll)
-    pitch = detrend(pitch)
-    yaw = detrend(yaw)
+    roll_segment = roll_raw[moving_mask]
+    roll_processed[moving_mask] = detrend(roll_segment)
+    
+    pitch_segment = pitch_raw[moving_mask]
+    pitch_processed[moving_mask] = detrend(pitch_segment)
 
-    roll[~stationary_mask] = 0.0
-    pitch[~stationary_mask] = 0.0
-    yaw[~stationary_mask] = 0.0
-
-    df_out['roll (deg)'] = np.degrees(roll)
-    df_out['pitch (deg)'] = np.degrees(pitch)
-    df_out['yaw (deg)'] = np.degrees(yaw)
+    yaw_processed = yaw_raw
+    
+    df_out['roll (deg)'] = np.degrees(roll_processed)
+    df_out['pitch (deg)'] = np.degrees(pitch_processed)
+    df_out['yaw (deg)'] = np.degrees(yaw_processed)
 
     return df_out
 
